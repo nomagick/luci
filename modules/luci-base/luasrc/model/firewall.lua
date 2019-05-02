@@ -307,6 +307,10 @@ function zone.masq(self)
 	return (self:get("masq") == "1")
 end
 
+function zone.masq6(self)
+	return (self:get("masq6") == "1")
+end
+
 function zone.name(self)
 	return self:get("name")
 end

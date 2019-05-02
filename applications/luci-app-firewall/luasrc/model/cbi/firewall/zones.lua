@@ -99,6 +99,7 @@ for i, v in ipairs(p) do
 end
 
 s:option(Flag, "masq", translate("Masquerading"))
+s:option(Flag, "masq6", translate("IPv6 Masquerading"))
 s:option(Flag, "mtu_fix", translate("MSS clamping"))
 
 return m
