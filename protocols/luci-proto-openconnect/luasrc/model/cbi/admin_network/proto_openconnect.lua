@@ -44,6 +44,11 @@ password.password = true
 password2 = section:taboption("general", Value, "password2", translate("Password2"))
 password2.password = true
 
+dtls_ciphers = section:taboption("advanced", Value, "dtls_ciphers",
+	translate("DTLS ciphers to be used"))
+
+dtls_ciphers.placeholder = "PSK-NEGOTIATE:OC-DTLS1_2-AES128-GCM:OC-DTLS1_2-AES256-GCM:AES256-SHA:AES128-SHA:DES-CBC3-SHA"
+dtls_ciphers.datatype    = "string"
 
 cert = section:taboption("advanced", Value, "usercert", translate("User certificate (PEM encoded)"))
 cert.template = "cbi/tvalue"
