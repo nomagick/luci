@@ -247,6 +247,19 @@ function ipaddrport(val, bracket)
 	return (h and p and ip6addr(h) and port(p))
 end
 
+function ipmark(val)
+
+	if (hex(val, 32) or range(val, 0, 4294967295)) then
+		return true
+	end
+
+	local mark, mask = val:match("^([^:]+)/([^:]+)$")
+
+	return (mask and (hex(mask, 32) or range(mask, 0, 4294967295)) and
+		mark and (hex(mark, 32) or range(mark, 0, 4294967295)))
+
+end
+
 function wpakey(val)
 	if #val == 64 then
 		return (val:match("^[a-fA-F0-9]+$") ~= nil)

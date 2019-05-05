@@ -8,7 +8,7 @@ local ds = require "luci.dispatcher"
 local ut = require "luci.util"
 
 local m, p, i, v
-local s, name, net, family, msrc, mdest, log, lim
+local s, name, net, family, msrc, mdest, mmark, log, lim
 local s2, out, inp
 
 
@@ -137,6 +137,13 @@ mdest.datatype = "list(neg(or(uciname,hostname,ipmask4,ipmask6)))"
 mdest.placeholder = "0.0.0.0/0"
 mdest:depends("family", "")
 mdest:depends("family", "ipv4")
+
+mmark = s:taboption("advanced", DynamicList, "masq_mark",
+	translate("Restrict Masquerading to given firewall mark"))
+
+mmark.optional = true
+mmark.datatype = "list(neg(ipmark))"
+mmark.placeholder = "0x3f00/0x3f00"
 
 s:taboption("advanced", Flag, "conntrack",
 	translate("Force connection tracking"))
