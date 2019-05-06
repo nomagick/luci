@@ -139,7 +139,7 @@ mdest:depends("family", "")
 mdest:depends("family", "ipv4")
 
 mmark = s:taboption("advanced", DynamicList, "masq_mark",
-	translate("Restrict Masquerading to given firewall mark"))
+	translate("Additional Masquerading to given firewall mark"))
 
 mmark.optional = true
 mmark.datatype = "list(neg(ipmark))"
