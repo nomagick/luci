@@ -20,17 +20,23 @@ verbose.default = false
 
 status=s:option(Flag, "status", translate("Status"))
 
-bind=s:option(Value, "bind", translate("Bind IP/Interface"))
+bind=s:option(Value, "bind", translate("Bind Interface"),
+    translate("Bind only on the given interface or, if unspecified, on all"))
 bind.rmempty = true
-bind.datatype = "or(ipaddr, network)"
+bind.template = "cbi/network_netlist"
+bind.nocreate = true
+bind.unspecified = true
 
 port=s:option(Value, "port", translate("Port"))
 port.rmempty = true
 port.datatype = "port"
 
-source=s:option(Value, "source", translate("Source IP/Interface"))
+source=s:option(Value, "source", translate("Source Interface"),
+    translate("Listen for traffic only on the given interface or, if unspecified, on all"))
 source.rmempty = true
-source.datatype = "or(ipaddr, network)"
+source.template = "cbi/network_netlist"
+source.nocreate = true
+source.unspecified = true
 
 max_clients=s:option(Value, "max_clients", translate("Max clients"))
 max_clients.rmempty = true
