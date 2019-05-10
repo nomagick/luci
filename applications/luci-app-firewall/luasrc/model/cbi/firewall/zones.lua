@@ -99,7 +99,12 @@ for i, v in ipairs(p) do
 end
 
 s:option(Flag, "masq", translate("Masquerading"))
-s:option(Flag, "masq6", translate("IPv6 Masquerading"))
+
+local ipt6_nat = fs.access("/sys/module/ip6table_nat/refcnt")
+if (ipt6_nat) then
+	s:option(Flag, "masq6", translate("IPv6 Masquerading"))
+end
+
 s:option(Flag, "mtu_fix", translate("MSS clamping"))
 
 return m
