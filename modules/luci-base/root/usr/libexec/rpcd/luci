@@ -215,6 +215,7 @@ local methods = {
 			rv.zram          = fs.access("/sys/class/zram-control")
 			rv.sysntpd       = fs.readlink("/usr/sbin/ntpd") and true
 			rv.ipv6          = fs.access("/proc/net/ipv6_route")
+			rv.nat6    		 = fs.access("/sys/module/ip6table_nat/refcnt")
 			rv.dropbear      = fs.access("/usr/sbin/dropbear")
 			rv.cabundle      = fs.access("/etc/ssl/certs/ca-certificates.crt")
 
