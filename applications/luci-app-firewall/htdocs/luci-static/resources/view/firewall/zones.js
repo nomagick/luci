@@ -202,17 +202,36 @@ return L.view.extend({
 		o.value('ipv6', _('IPv6 only'));
 		o.modalonly = true;
 
+		if (L.hasSystemFeature('nat6')) {
+			o = s.taboption('advanced', form.Flag, 'masq6', _('IPv6 Masquerading'));
+			o.depends('family', '');
+			o.depends('family', 'ipv6');
+			o.editable = true;
+			o.modalonly = true;
+		}
+
 		o = s.taboption('advanced', form.DynamicList, 'masq_src', _('Restrict Masquerading to given source subnets'));
 		o.depends('family', '');
 		o.depends('family', 'ipv4');
-		o.datatype = 'list(neg(or(uciname,hostname,ipmask4)))';
+		if (L.hasSystemFeature('nat6')) {
+			o.depends('family', 'ipv6')
+			o.datatype = 'list(neg(or(uciname,hostname,ipmask4,ipmask6)))';
+		} else {
+			o.datatype = 'list(neg(or(uciname,hostname,ipmask4)))';
+		}
+
 		o.placeholder = '0.0.0.0/0';
 		o.modalonly = true;
 
 		o = s.taboption('advanced', form.DynamicList, 'masq_dest', _('Restrict Masquerading to given destination subnets'));
 		o.depends('family', '');
 		o.depends('family', 'ipv4');
-		o.datatype = 'list(neg(or(uciname,hostname,ipmask4)))';
+		if (L.hasSystemFeature('nat6')) {
+			o.depends('family', 'ipv6')
+			o.datatype = 'list(neg(or(uciname,hostname,ipmask4,ipmask6)))';
+		} else {
+			o.datatype = 'list(neg(or(uciname,hostname,ipmask4)))';
+		}
 		o.placeholder = '0.0.0.0/0';
 		o.modalonly = true;
 
