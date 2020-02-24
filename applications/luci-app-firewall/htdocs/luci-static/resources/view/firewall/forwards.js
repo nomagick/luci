@@ -34,10 +34,13 @@ function rule_proto_txt(s, ctHelpers) {
 		mask: m[3] ? '0x%02X'.format(+m[3]) : null
 	} : null;
 
-	return fwtool.fmt(_('Incoming IPv4%{proto?, protocol %{proto#%{next?, }%{item.types?<var class="cbi-tooltip-container">%{item.name}<span class="cbi-tooltip">ICMP with types %{item.types#%{next?, }<var>%{item}</var>}</span></var>:<var>%{item.name}</var>}}}%{mark?, mark <var%{mark.inv? data-tooltip="Match fwmarks except %{mark.num}%{mark.mask? with mask %{mark.mask}}.":%{mark.mask? data-tooltip="Mask fwmark value with %{mark.mask} before compare."}}>%{mark.val}</var>}%{helper?, helper %{helper.inv?<var data-tooltip="Match any helper except &quot;%{helper.name}&quot;">%{helper.val}</var>:<var data-tooltip="%{helper.name}">%{helper.val}</var>}}'), {
+	var fmy = String(uci.get('firewall', s, 'family') || '').replace('ip', 'IP');
+
+	return fwtool.fmt(_('Incoming %{family}%{proto?, protocol %{proto#%{next?, }%{item.types?<var class="cbi-tooltip-container">%{item.name}<span class="cbi-tooltip">ICMP with types %{item.types#%{next?, }<var>%{item}</var>}</span></var>:<var>%{item.name}</var>}}}%{mark?, mark <var%{mark.inv? data-tooltip="Match fwmarks except %{mark.num}%{mark.mask? with mask %{mark.mask}}.":%{mark.mask? data-tooltip="Mask fwmark value with %{mark.mask} before compare."}}>%{mark.val}</var>}%{helper?, helper %{helper.inv?<var data-tooltip="Match any helper except &quot;%{helper.name}&quot;">%{helper.val}</var>:<var data-tooltip="%{helper.name}">%{helper.val}</var>}}'), {
 		proto: proto,
 		helper: h,
-		mark:   f
+		mark:   f,
+		family: fmy || 'IPv4/IPv6'
 	});
 }
 
@@ -182,6 +185,13 @@ return L.view.extend({
 		o.default = o.enabled;
 		o.editable = true;
 
+		o = s.taboption('general', form.ListValue, 'family', _('Address family'));
+		o.value('', _('Any'));
+		o.value('ipv4', _('IPv4'));
+		o.value('ipv6', _('IPv6'));
+		o.modalonly = true;
+		o.default = '';
+
 		o = s.taboption('general', fwtool.CBIProtocolSelect, 'proto', _('Protocol'));
 		o.modalonly = true;
 		o.default = 'tcp udp';
@@ -197,10 +207,12 @@ return L.view.extend({
 		o.rmempty = true;
 		o.datatype = 'list(neg(macaddr))';
 
+		var nat6 = L.hasSystemFeature('nat6');
+
 		o = fwtool.addIPOption(s, 'advanced', 'src_ip', _('Source IP address'),
-			_('Only match incoming traffic from this IP or range.'), 'ipv4', hosts);
+			_('Only match incoming traffic from this IP or range.'), nat6 ? '' : 'ipv4', hosts);
 		o.rmempty = true;
-		o.datatype = 'neg(ipmask4)';
+		o.datatype = nat6 ? 'neg(or(ipmask4,ipmask6))' : 'neg(ipmask4)';
 
 		o = s.taboption('advanced', form.Value, 'src_port', _('Source port'),
 			_('Only match incoming traffic originating from the given source port or port range on the client host'));
@@ -213,7 +225,7 @@ return L.view.extend({
 
 		o = fwtool.addLocalIPOption(s, 'advanced', 'src_dip', _('External IP address'),
 			_('Only match incoming traffic directed at the given IP address.'), devs);
-		o.datatype = 'neg(ipmask4)';
+		o.datatype = nat6 ? 'neg(or(ipmask4,ipmask6))' : 'neg(ipmask4)';
 		o.rmempty = true;
 
 		o = s.taboption('general', form.Value, 'src_dport', _('External port'),
@@ -231,9 +243,9 @@ return L.view.extend({
 		o.default = 'lan';
 
 		o = fwtool.addIPOption(s, 'general', 'dest_ip', _('Internal IP address'),
-			_('Redirect matched incoming traffic to the specified internal host'), 'ipv4', hosts);
+			_('Redirect matched incoming traffic to the specified internal host'), nat6 ? '' : 'ipv4', hosts);
 		o.rmempty = true;
-		o.datatype = 'ipmask4';
+		o.datatype = nat6 ? 'or(ipmask4,ipmask6)' : 'ipmask4';
 
 		o = s.taboption('general', form.Value, 'dest_port', _('Internal port'),
 			_('Redirect matched incoming traffic to the given port on the internal host'));

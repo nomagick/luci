@@ -26,9 +26,12 @@ function rule_proto_txt(s) {
 		mask: m[3] ? '0x%02X'.format(+m[3]) : null
 	} : null;
 
-	return fwtool.fmt(_('Forwarded IPv4%{proto?, protocol %{proto#%{next?, }<var>%{item.name}</var>}}%{mark?, mark <var%{mark.inv? data-tooltip="Match fwmarks except %{mark.num}%{mark.mask? with mask %{mark.mask}}.":%{mark.mask? data-tooltip="Mask fwmark value with %{mark.mask} before compare."}}>%{mark.val}</var>}'), {
+	var fmy = String(uci.get('firewall', s, 'family') || '').replace('ip', 'IP');
+
+	return fwtool.fmt(_('Forwarded %{family}%{proto?, protocol %{proto#%{next?, }<var>%{item.name}</var>}}%{mark?, mark <var%{mark.inv? data-tooltip="Match fwmarks except %{mark.num}%{mark.mask? with mask %{mark.mask}}.":%{mark.mask? data-tooltip="Mask fwmark value with %{mark.mask} before compare."}}>%{mark.val}</var>}'), {
 		proto: proto,
-		mark:  f
+		mark:  f,
+		family: fmy || 'IPv4/IPv6'
 	});
 }
 
@@ -169,6 +172,13 @@ return L.view.extend({
 		o.modalonly = true;
 		o.default = 'all';
 
+		o = s.taboption('general', form.ListValue, 'family', _('Address family'));
+		o.value('', _('Any'));
+		o.value('ipv4', _('IPv4'));
+		o.value('ipv6', _('IPv6'));
+		o.modalonly = true;
+		o.default = '';
+
 		o = s.taboption('general', widgets.ZoneSelect, 'src', _('Outbound zone'));
 		o.modalonly = true;
 		o.rmempty = false;
@@ -176,10 +186,12 @@ return L.view.extend({
 		o.allowany = true;
 		o.default = 'lan';
 
+		var nat6 = L.hasSystemFeature('nat6');
+
 		o = fwtool.addIPOption(s, 'general', 'src_ip', _('Source address'),
-			_('Match forwarded traffic from this IP or range.'), 'ipv4', hosts);
+			_('Match forwarded traffic from this IP or range.'), nat6 ? '' : 'ipv4', hosts);
 		o.rmempty = true;
-		o.datatype = 'neg(ipmask4)';
+		o.datatype = nat6 ? 'neg(or(ipmask4,ipmask6))' : 'neg(ipmask4)';
 
 		o = s.taboption('general', form.Value, 'src_port', _('Source port'),
 			_('Match forwarded traffic originating from the given source port or port range.'));
@@ -191,9 +203,9 @@ return L.view.extend({
 		o.depends({ proto: 'udp', '!contains': true });
 
 		o = fwtool.addIPOption(s, 'general', 'dest_ip', _('Destination address'),
-			_('Match forwarded traffic directed at the given IP address.'), 'ipv4', hosts);
+			_('Match forwarded traffic directed at the given IP address.'), nat6 ? '' : 'ipv4', hosts);
 		o.rmempty = true;
-		o.datatype = 'neg(ipmask4)';
+		o.datatype = nat6 ? 'neg(or(ipmask4,ipmask6))' : 'neg(ipmask4)';
 
 		o = s.taboption('general', form.Value, 'dest_port', _('Destination port'),
 			_('Match forwarded traffic directed at the given destination port or port range.'));
