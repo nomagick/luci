@@ -158,5 +158,10 @@ return network.registerProtocol('openconnect', {
 		o.optional = true;
 		o.placeholder = 1406;
 		o.datatype = 'range(68, 9200)';
+
+		o = s.taboption('advanced', form.Value, 'dtls_ciphers', _('DTLS ciphers to be used'));
+		o.optional = true;
+		o.placeholder = 'PSK-NEGOTIATE:OC-DTLS1_2-AES128-GCM:OC-DTLS1_2-AES256-GCM:AES256-SHA:AES128-SHA:DES-CBC3-SHA';
+		o.datatype = 'string';
 	}
 });
